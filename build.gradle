@@ -3,9 +3,31 @@ plugins {
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
 }
 
-ext {
-    hytaleHome = "${System.getProperty("user.home")}/AppData/Roaming/Hytale"
+static String expandEnvPaths(String path) {
+    Pattern expr = Pattern.compile("%[A-Za-z0-9-_]+%");
+    Matcher matcher = expr.matcher(path);
+    while (matcher.find()) {
+        String matched = matcher.group();
+        matched = matched.substring(1, matched.length() - 1);
+        String uMatched = matched.toUpperCase();
+        String envValue = System.getenv(uMatched);
+
+        if (envValue == null) {
+            envValue = "%${matched}%";
+
+        } else {
+            envValue = envValue.replace("\\", "\\\\");
+        }
+        Pattern subexpr = Pattern.compile(Pattern.quote(matcher.group(0)));
+        path = subexpr.matcher(path).replaceAll(envValue);
+    }
+    return path;
 }
+ext {
+    // Modify in gradle.properties to point to your Hytale install.
+    hytaleHome = expandEnvPaths(project.hytale_root_directory)
+}
+
 
 java {
     toolchain.languageVersion = JavaLanguageVersion.of(java_version)
