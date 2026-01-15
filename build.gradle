@@ -1,3 +1,5 @@
+import java.util.regex.Matcher
+import java.util.regex.Pattern
 plugins {
     id 'java'
     id 'org.jetbrains.gradle.plugin.idea-ext' version '1.3'
